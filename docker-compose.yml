@@ -1,0 +1,41 @@
+version: "2.4"
+
+services:
+  core:
+    build:
+      context: core
+      args:
+        vcredist_file: vc_redist.x64.exe
+        ometascan_install_file: ometascan-${VERSION}-x64.msi
+        version: ${VERSION}
+    container_name: core
+    expose:
+      - "8008"
+      - "8007"
+    isolation: hyperv
+    ports:
+      - "8008:8008"
+      - "8007:8007"
+    networks:
+      - "metadefender-network"
+    mem_limit: 4G
+
+  node:
+    build:
+      context: node
+      args:
+        vcredist_file: vc_redist.x64.exe
+        ometascan_node_install_file: ometascan-node-${VERSION}-x64.msi
+        version: ${VERSION}
+    depends_on:
+      - core
+    isolation: hyperv
+    networks:
+      - "metadefender-network"
+    mem_limit: 8G
+    scale: ${NODE_COUNT}
+
+networks:
+  metadefender-network:
+    driver: nat
+    name: metadefender-network
